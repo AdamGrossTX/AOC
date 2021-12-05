@@ -1,9 +1,8 @@
 $PuzzleInput = Get-Content -Path .\Day1Input.txt
-
-$Result = for($i = 0; $i -le $PuzzleInput.Length-1; $i++) {
+$Result = for($i = 0; $i -lt $PuzzleInput.Length; $i++) {
     [PSCustomObject]@{
         Number = $PuzzleInput[$i]
-        Change = if($PuzzleInput[$i] -gt $PuzzleInput[$i-1]) {"Increased"} elseif($PuzzleInput[$i] -lt $PuzzleInput[$i-1]){"Decreased"} elseif($PuzzleInput[$i] -eq $PuzzleInput[$i-1]) {"No Change"} else {"Unknown"}
+        Change = if([int]$PuzzleInput[$i-1] -lt [int]$PuzzleInput[$i]) {"Increased"} elseif([int]$PuzzleInput[$i] -lt [int]$PuzzleInput[$i-1]){"Decreased"} elseif([int]$PuzzleInput[$i] -eq [int]$PuzzleInput[$i-1]) {"No Change"} else {"Unknown"}
         Order = $i+1
     }
 }
