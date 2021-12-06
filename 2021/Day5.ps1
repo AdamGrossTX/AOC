@@ -1,8 +1,9 @@
 $PuzzleInput = Get-Content -Path .\Day5Input.txt
-#Part 1
+#Part 1 & Part 2
+$Part1 = $True #Change to false for part 2
 $Sets = foreach ($CoordSet in $PuzzleInput) {
     [int[]]$Coords = $CoordSet -split ' -> ' -split ","
-    if($Coords[0] -eq $Coords[2] -or $Coords[1] -eq $Coords[3]) {
+    if(($Coords[0] -eq $Coords[2] -or $Coords[1] -eq $Coords[3]) -and $Part1) {
         [PSCustomObject]@{
             Set    = $Coords
             x1     = $Coords[0]
@@ -13,23 +14,30 @@ $Sets = foreach ($CoordSet in $PuzzleInput) {
     }
 }
 
-$grid = New-Object -TypeName System.Collections.ArrayList
+[int]$MaxX = ($Sets.x1 + $Sets.x2 | Measure-Object -Maximum).Maximum
+[int]$MaxY = ($Sets.y1 + $Sets.y2 | Measure-Object -Maximum).Maximum
+
+$grid = New-Object 'object[,]' ($MaxX+1),($MaxY+1)
 
 foreach($set in $sets) {
-    foreach($x in ($set.x1..$set.x2)) {
-        foreach($y in ($set.y1..$set.y2)) {
-            $existing = $grid | where-object {$_.x -eq $x -and $_.y -eq $y}
-            if($existing) {
-                $grid[$grid.IndexOf($existing)].hits += 1
-            }
-            else {
-                $grid.add([PSCustomObject]@{
-                    x    = $x
-                    y    = $y
-                    hits = 1
-                }) | Out-Null
-            }
+    $xrange = ($set.x1..$set.x2)
+    $yRange = ($set.y1..$set.y2)
+   
+    if($xrange.Count -gt $yRange.Count) {
+        for($i=0;$i -lt $xRange.Count; $i++) {
+            $grid[$xrange[$i],$yRange[0]] += 1
+       }
+    }
+    elseif($yRange.Count -gt $xRange.Count) {
+        for($i=0;$i -lt $yRange.Count; $i++) {
+            $grid[$xrange[0],$yRange[$i]] += 1
+        }
+    }
+    else {
+        for($i=0;$i -lt $xRange.Count; $i++) {
+            $grid[$xrange[$i],$yRange[$i]] += 1
         }
     }
 }
-$Grid | where-Object hits -gt 1 | Measure-Object | Select-Object -ExpandProperty Count
+
+$Grid | where-Object {$_ -gt 1} | Measure-Object | Select-Object -ExpandProperty Count
